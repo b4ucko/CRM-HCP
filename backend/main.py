@@ -99,6 +99,16 @@ def chat_endpoint(payload: ChatRequest):
         updated_messages = final_state.get("messages", [])
         updated_form_state = final_state.get("form_state", form_state)
         
+        # Log execution details to the console for diagnosis
+        print("=== LANGGRAPH Turn Execution Messages ===", flush=True)
+        for idx, msg in enumerate(updated_messages):
+            print(f"Message #{idx} | Type: {type(msg).__name__}", flush=True)
+            print(f"Content: {getattr(msg, 'content', '')}", flush=True)
+            if hasattr(msg, 'tool_calls') and msg.tool_calls:
+                print(f"Tool Calls: {msg.tool_calls}", flush=True)
+            print("-" * 30, flush=True)
+        print("=========================================", flush=True)
+        
         # Find the final text response from the assistant
         ai_message_text = "I processed your request, but couldn't generate a text response."
         for msg in reversed(updated_messages):

@@ -70,8 +70,17 @@ def log_interaction(meeting_description: str) -> str:
         if hcp_name and isinstance(hcp_name, str):
             hcp_name = hcp_name.title()
             
-        topics = [t.title() for t in extracted.get("topics", []) if isinstance(t, str)]
-        materials = [m.title() for m in extracted.get("materials", []) if isinstance(m, str)]
+        # Guarantee topics is a list of title-cased strings
+        raw_topics = extracted.get("topics") or []
+        if isinstance(raw_topics, str):
+            raw_topics = [item.strip() for item in raw_topics.split(',') if item.strip()]
+        topics = [t.title() for t in raw_topics if isinstance(t, str)]
+        
+        # Guarantee materials is a list of title-cased strings
+        raw_materials = extracted.get("materials") or []
+        if isinstance(raw_materials, str):
+            raw_materials = [item.strip() for item in raw_materials.split(',') if item.strip()]
+        materials = [m.title() for m in raw_materials if isinstance(m, str)]
         
         # Prepare special return structure for custom ToolNode interception
         update_payload = {
@@ -109,13 +118,14 @@ def edit_interaction(fields_to_update: dict, current_form_state: dict = None) ->
     
     for key, value in fields_to_update.items():
         if key in allowed_keys:
-            # Enforce proper title casing for edited text inputs
+            # Enforce proper title casing and list structure for text inputs
             if key == "hcp_name" and isinstance(value, str):
                 value = value.title()
-            elif key == "topics" and isinstance(value, list):
-                value = [t.title() for t in value if isinstance(t, str)]
-            elif key == "materials" and isinstance(value, list):
-                value = [m.title() for m in value if isinstance(m, str)]
+            elif key in ["topics", "materials"]:
+                if isinstance(value, str):
+                    value = [item.strip().title() for item in value.split(',') if item.strip()]
+                elif isinstance(value, list):
+                    value = [item.title() for item in value if isinstance(item, str)]
                 
             updated_state[key] = value
             updated_fields.append(key)
