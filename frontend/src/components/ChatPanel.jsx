@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Send, Sparkles, MessageSquare, AlertCircle } from 'lucide-react';
-import { addLocalUserMessage, sendMessage } from '../store';
+import { Send, Sparkles, MessageSquare, AlertCircle, Trash2 } from 'lucide-react';
+import { addLocalUserMessage, sendMessage, clearChat } from '../store';
 
 export default function ChatPanel() {
   const [input, setInput] = useState('');
@@ -77,7 +77,18 @@ export default function ChatPanel() {
             <p className="text-[10px] text-slate-400">LangGraph Agent Controller</p>
           </div>
         </div>
+
+        {/* Clear Chat Button */}
+        <button
+          onClick={() => dispatch(clearChat())}
+          className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-500/10 hover:text-rose-400 border border-slate-750 hover:border-rose-500/30 transition text-slate-400 active:scale-95 duration-100 font-semibold"
+          title="Clear chat history"
+        >
+          <Trash2 size={13} />
+          Clear Chat
+        </button>
       </div>
+
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">

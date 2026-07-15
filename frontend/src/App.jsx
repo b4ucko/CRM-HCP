@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import FormPanel from './components/FormPanel';
 import ChatPanel from './components/ChatPanel';
 import HistoryPanel from './components/HistoryPanel';
-import { Activity, ShieldCheck, HeartPulse } from 'lucide-react';
+import { ShieldCheck, HeartPulse } from 'lucide-react';
 
 export default function App() {
   const [backendOnline, setBackendOnline] = useState(false);
@@ -42,21 +42,9 @@ export default function App() {
               <p className="text-xs text-slate-400">Interaction Portal</p>
             </div>
           </div>
-
-          {/* Backend Health Check Badge */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-400 hidden sm:inline-block">API Backend:</span>
-            <div className={`flex items-center gap-1.5 px-3 py-1 text-xs rounded-full border ${
-              backendOnline 
-                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
-                : 'bg-rose-500/10 text-rose-400 border-rose-500/20 animate-pulse'
-            }`}>
-              <Activity size={12} className={backendOnline ? 'animate-pulse' : ''} />
-              <span>{backendOnline ? 'Online' : 'Offline'}</span>
-            </div>
-          </div>
         </div>
       </header>
+
 
       {/* Main Workspace Workspace */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">

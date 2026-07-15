@@ -102,6 +102,16 @@ const crmSlice = createSlice({
         sender: 'user',
         text: action.payload
       });
+    },
+    clearChat: (state) => {
+      state.messages = [
+        {
+          id: 'welcome',
+          sender: 'assistant',
+          text: "Hello! I am your AI CRM Assistant. I control the 'Interaction Details' form on the left. Since the form is read-only, you can tell me about your meetings (e.g. HCP name, date, topic, sentiment, materials shared), and I'll populate the form, schedule follow-ups, or save details to the database for you. How can I help today?"
+        }
+      ];
+      state.error = null;
     }
   },
   extraReducers: (builder) => {
@@ -136,7 +146,7 @@ const crmSlice = createSlice({
   }
 });
 
-export const { clearForm, addLocalUserMessage } = crmSlice.actions;
+export const { clearForm, addLocalUserMessage, clearChat } = crmSlice.actions;
 
 export const store = configureStore({
   reducer: {
