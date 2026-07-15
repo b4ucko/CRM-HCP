@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Send, Sparkles, MessageSquare, AlertCircle, Trash2 } from 'lucide-react';
+import { Send, Trash2 } from 'lucide-react';
 import { addLocalUserMessage, sendMessage, clearChat } from '../store';
 
 export default function ChatPanel() {
@@ -22,7 +22,7 @@ export default function ChatPanel() {
     const text = (textToSend || input).trim();
     if (!text || loading) return;
 
-    // 1. Add user message locally immediately
+    // 1. Add user message locally
     dispatch(addLocalUserMessage(text));
     
     // 2. Dispatch thunk to send to API
@@ -40,10 +40,9 @@ export default function ChatPanel() {
     }
   };
 
-  // Modern suggestions to help the user evaluate features
   const suggestions = [
     {
-      label: "📝 Log Dr. Alice's Visit",
+      label: "📝 Log Dr. Alice",
       text: "Log meeting: Dr. Alice Smith on July 10, 2026. Sentiment was positive. Discussed Cardiology and Beta Blockers. Shared Brochure V2."
     },
     {
@@ -55,56 +54,51 @@ export default function ChatPanel() {
       text: "Schedule follow-up for next week on July 22 to discuss patient enrollment metrics."
     },
     {
-      label: "🔍 Retrieve History",
+      label: "🔍 History",
       text: "What is the history of Dr. Alice Smith?"
     },
     {
-      label: "💾 Save to Database",
+      label: "💾 Save",
       text: "Save this interaction."
     }
   ];
 
   return (
-    <div className="flex flex-col h-full glass-card rounded-2xl overflow-hidden shadow-2xl border-slate-800/80">
+    <div className="flex flex-col h-full bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="px-6 py-5 border-b border-slate-800 bg-slate-900/30 flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-indigo-600/25 border border-indigo-500/35 flex items-center justify-center text-indigo-400">
-            <Sparkles size={16} />
-          </div>
-          <div>
-            <h2 className="font-bold text-sm text-slate-100 leading-tight">AI Assistant</h2>
-            <p className="text-[10px] text-slate-400">LangGraph Agent Controller</p>
-          </div>
+      <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+        <div>
+          <h2 className="font-bold text-slate-800 text-sm uppercase tracking-wider">
+            AI Assistant
+          </h2>
+          <p className="text-[10px] text-slate-400 font-medium">Log interaction via chat</p>
         </div>
-
+        
         {/* Clear Chat Button */}
         <button
           onClick={() => dispatch(clearChat())}
-          className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-500/10 hover:text-rose-400 border border-slate-750 hover:border-rose-500/30 transition text-slate-400 active:scale-95 duration-100 font-semibold"
+          className="text-xs flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 transition font-medium"
           title="Clear chat history"
         >
-          <Trash2 size={13} />
+          <Trash2 size={12} />
           Clear Chat
         </button>
       </div>
 
-
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar bg-slate-50/20">
         {messages.map((msg) => (
           <div
             key={msg.id}
             className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm shadow-md transition-all ${
+              className={`max-w-[85%] rounded-lg px-4 py-2.5 text-sm border shadow-sm transition-all ${
                 msg.sender === 'user'
-                  ? 'bg-indigo-600 text-white rounded-tr-none'
-                  : 'bg-slate-900 border border-slate-800/60 text-slate-100 rounded-tl-none'
+                  ? 'bg-indigo-50 border-indigo-200/60 text-slate-800'
+                  : 'bg-white border-slate-200 text-slate-800'
               }`}
             >
-              {/* Message text with basic newline formatting */}
               <div className="whitespace-pre-line leading-relaxed font-normal">
                 {msg.text}
               </div>
@@ -115,18 +109,17 @@ export default function ChatPanel() {
         {/* Loading / Typing Indicator */}
         {loading && (
           <div className="flex justify-start">
-            <div className="bg-slate-900 border border-slate-800/60 text-slate-400 rounded-2xl rounded-tl-none px-4 py-3 text-sm shadow-md flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-              <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-              <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+            <div className="bg-white border border-slate-200 text-slate-400 rounded-lg px-4 py-2.5 text-sm shadow-sm flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+              <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+              <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
             </div>
           </div>
         )}
 
         {/* Error Indicator */}
         {error && (
-          <div className="flex items-center gap-2 p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-xs text-rose-400">
-            <AlertCircle size={14} />
+          <div className="p-3 rounded border border-rose-200 bg-rose-50 text-xs text-rose-600">
             <span>{error}</span>
           </div>
         )}
@@ -135,15 +128,14 @@ export default function ChatPanel() {
       </div>
 
       {/* Suggestions Slider */}
-      <div className="px-6 py-2 border-t border-slate-800 bg-slate-950/20">
-        <p className="text-[10px] uppercase font-bold tracking-wider text-slate-500 mb-2">Suggestions</p>
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none custom-scrollbar select-none">
+      <div className="px-6 py-2 border-t border-slate-100 bg-slate-50/30">
+        <div className="flex gap-1.5 overflow-x-auto pb-1.5 scrollbar-none custom-scrollbar select-none">
           {suggestions.map((sug, i) => (
             <button
               key={i}
               onClick={() => handleSend(sug.text)}
               disabled={loading}
-              className="shrink-0 px-3 py-1.5 text-xs rounded-full bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="shrink-0 px-2.5 py-1 text-[11px] rounded bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 transition font-medium disabled:opacity-50"
             >
               {sug.label}
             </button>
@@ -152,23 +144,24 @@ export default function ChatPanel() {
       </div>
 
       {/* Input Box */}
-      <div className="p-4 border-t border-slate-800 bg-slate-900/10">
-        <div className="relative flex items-center rounded-xl bg-slate-950/80 border border-slate-800/80 focus-within:border-indigo-500/50 shadow-inner transition">
+      <div className="p-4 border-t border-slate-200 bg-slate-50/20">
+        <div className="flex gap-2">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={loading}
-            placeholder="Type a message or click a suggestion..."
-            className="flex-1 bg-transparent px-4 py-3.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none disabled:opacity-50"
+            placeholder="Describe interaction..."
+            className="flex-1 bg-white border border-slate-200 rounded px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400 disabled:opacity-50"
           />
           <button
             onClick={() => handleSend()}
             disabled={!input.trim() || loading}
-            className="absolute right-2 px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white transition flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
+            className="px-4 py-2 rounded bg-slate-800 hover:bg-slate-700 disabled:bg-slate-300 text-white font-semibold text-sm transition flex items-center gap-1.5 cursor-pointer disabled:cursor-not-allowed"
           >
-            <Send size={14} />
+            <Send size={12} className="rotate-45" />
+            Log
           </button>
         </div>
       </div>
