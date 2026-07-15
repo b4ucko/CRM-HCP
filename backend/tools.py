@@ -39,11 +39,11 @@ def log_interaction(meeting_description: str) -> str:
     llm = get_llm()
     prompt = f"""
     Analyze the following description of a meeting with a Healthcare Professional (HCP) and extract:
-    1. HCP Name (e.g., Dr. Alice Smith)
-    2. Date of meeting (format YYYY-MM-DD; if not specified, default to today's date "2026-07-15")
-    3. Sentiment (must be exactly one of: "Positive", "Neutral", "Negative")
-    4. Topics Discussed (list of strings)
-    5. Materials Shared (list of strings)
+    1. HCP Name (e.g., Dr. Alice Smith). Must use proper capitalization (Title Case).
+    2. Date of meeting (format YYYY-MM-DD; if not specified, default to today's date "2026-07-15").
+    3. Sentiment (must be exactly one of: "Positive", "Neutral", "Negative").
+    4. Topics Discussed (list of strings). Capitalize the first letter of each word (Title Case) and use formal terminology (e.g., 'Skin Condition' instead of 'skin condition').
+    5. Materials Shared (list of strings). Capitalize the first letter of each word (Title Case) (e.g., 'Research Paper' instead of 'research paper').
 
     Meeting Description:
     "{meeting_description}"
@@ -65,16 +65,24 @@ def log_interaction(meeting_description: str) -> str:
         
         extracted = json.loads(content)
         
+        # Apply programmatic title casing to guarantee correct capitalization
+        hcp_name = extracted.get("hcp_name")
+        if hcp_name and isinstance(hcp_name, str):
+            hcp_name = hcp_name.title()
+            
+        topics = [t.title() for t in extracted.get("topics", []) if isinstance(t, str)]
+        materials = [m.title() for m in extracted.get("materials", []) if isinstance(m, str)]
+        
         # Prepare special return structure for custom ToolNode interception
         update_payload = {
             "form_state_update": {
-                "hcp_name": extracted.get("hcp_name"),
+                "hcp_name": hcp_name,
                 "date": extracted.get("date"),
                 "sentiment": extracted.get("sentiment", "Neutral"),
-                "topics": extracted.get("topics", []),
-                "materials": extracted.get("materials", []),
+                "topics": topics,
+                "materials": materials,
             },
-            "message": f"Successfully logged interaction details for {extracted.get('hcp_name')} on {extracted.get('date')}."
+            "message": f"Successfully logged interaction details for {hcp_name} on {extracted.get('date')}."
         }
         return json.dumps(update_payload)
     except Exception as e:
@@ -101,6 +109,14 @@ def edit_interaction(fields_to_update: dict, current_form_state: dict = None) ->
     
     for key, value in fields_to_update.items():
         if key in allowed_keys:
+            # Enforce proper title casing for edited text inputs
+            if key == "hcp_name" and isinstance(value, str):
+                value = value.title()
+            elif key == "topics" and isinstance(value, list):
+                value = [t.title() for t in value if isinstance(t, str)]
+            elif key == "materials" and isinstance(value, list):
+                value = [m.title() for m in value if isinstance(m, str)]
+                
             updated_state[key] = value
             updated_fields.append(key)
             
@@ -159,7 +175,8 @@ def schedule_follow_up(date: str, topic: str, current_form_state: dict = None) -
     if not current_form_state:
         current_form_state = {}
         
-    next_steps_text = f"Follow-up scheduled on {date} to discuss '{topic}'."
+    formatted_topic = topic.title() if isinstance(topic, str) else topic
+    next_steps_text = f"Follow-up scheduled on {date} to discuss '{formatted_topic}'."
     
     updated_state = current_form_state.copy()
     updated_state["next_steps"] = next_steps_text
@@ -168,7 +185,7 @@ def schedule_follow_up(date: str, topic: str, current_form_state: dict = None) -
         "form_state_update": {
             "next_steps": next_steps_text
         },
-        "message": f"Scheduled follow-up on {date} about '{topic}'."
+        "message": f"Scheduled follow-up on {date} about '{formatted_topic}'."
     }
     return json.dumps(update_payload)
 
