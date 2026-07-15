@@ -15,10 +15,11 @@ from backend.database import SessionLocal, Interaction
 def get_llm():
     api_key = os.getenv("GROQ_API_KEY")
     if api_key and api_key.startswith("sk-or-"):
+        model = os.getenv("OPENROUTER_MODEL", "openrouter/free")
         return ChatOpenAI(
             api_key=api_key,
             base_url="https://openrouter.ai/api/v1",
-            model="meta-llama/llama-3.3-70b-instruct",
+            model=model,
             temperature=0.1
         )
     else:

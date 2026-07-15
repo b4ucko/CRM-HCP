@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 from dotenv import load_dotenv
 # Load .env relative to this file's directory
@@ -100,14 +101,24 @@ def chat_endpoint(payload: ChatRequest):
         updated_form_state = final_state.get("form_state", form_state)
         
         # Log execution details to the console for diagnosis
-        print("=== LANGGRAPH Turn Execution Messages ===", flush=True)
-        for idx, msg in enumerate(updated_messages):
-            print(f"Message #{idx} | Type: {type(msg).__name__}", flush=True)
-            print(f"Content: {getattr(msg, 'content', '')}", flush=True)
-            if hasattr(msg, 'tool_calls') and msg.tool_calls:
-                print(f"Tool Calls: {msg.tool_calls}", flush=True)
-            print("-" * 30, flush=True)
-        print("=========================================", flush=True)
+        try:
+            print("=== LANGGRAPH Turn Execution Messages ===", flush=True)
+            for idx, msg in enumerate(updated_messages):
+                print(f"Message #{idx} | Type: {type(msg).__name__}", flush=True)
+                content = getattr(msg, 'content', '')
+                if isinstance(content, str):
+                    # Avoid console encoding issues by replacing characters that cannot be encoded
+                    safe_content = content.encode(sys.stdout.encoding or 'utf-8', errors='replace').decode(sys.stdout.encoding or 'utf-8')
+                    print(f"Content: {safe_content}", flush=True)
+                else:
+                    print(f"Content: {content}", flush=True)
+                if hasattr(msg, 'tool_calls') and msg.tool_calls:
+                    print(f"Tool Calls: {msg.tool_calls}", flush=True)
+                print("-" * 30, flush=True)
+            print("=========================================", flush=True)
+        except Exception as pe:
+            # Console printing failures should not break the API request
+            pass
         
         # Find the final text response from the assistant
         ai_message_text = "I processed your request, but couldn't generate a text response."

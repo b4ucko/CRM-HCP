@@ -1,9 +1,13 @@
 import os
 import json
 from datetime import datetime
+from dotenv import load_dotenv
 from sqlalchemy import create_engine, Column, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+
+# Load .env relative to this file's directory
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"))
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./crm_hcp.db")
 
